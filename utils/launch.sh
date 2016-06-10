@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 usage() {
     if [ "$*" ]; then
@@ -65,7 +65,7 @@ done
 which netstat >/dev/null 2>&1 \
     || die "Must have netstat installed"
 
-netstat -ltn | grep -qs "${PORT} .*LISTEN" \
+netstat -ln | grep tcp | grep -qs "${PORT} .*LISTEN" \
     && die "Port ${PORT} in use. Try --listen PORT"
 
 trap "cleanup" TERM QUIT INT EXIT
@@ -103,10 +103,10 @@ else
 fi
 
 # try to find websockify (prefer local, try global, then download local)
-if [[ -e ${HERE}/websockify ]]; then
+if [ -e ${HERE}/websockify ]; then
     WEBSOCKIFY=${HERE}/websockify/run
 
-    if [[ ! -x $WEBSOCKIFY ]]; then
+    if [ ! -x $WEBSOCKIFY ]; then
         echo "The path ${HERE}/websockify exists, but $WEBSOCKIFY either does not exist or is not executable."
         echo "If you intended to use an installed websockify package, please remove ${HERE}/websockify."
         exit 1
@@ -116,12 +116,12 @@ if [[ -e ${HERE}/websockify ]]; then
 else
     WEBSOCKIFY=$(which websockify 2>/dev/null)
 
-    if [[ $? -ne 0 ]]; then
+    if [ $? -ne 0 ]; then
         echo "No installed websockify, attempting to clone websockify..."
         WEBSOCKIFY=${HERE}/websockify/run
         git clone https://github.com/kanaka/websockify ${HERE}/websockify
 
-        if [[ ! -e $WEBSOCKIFY ]]; then
+        if [ ! -e $WEBSOCKIFY ]; then
             echo "Unable to locate ${HERE}/websockify/run after downloading"
             exit 1
         fi
